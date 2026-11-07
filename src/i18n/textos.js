@@ -34,7 +34,7 @@ export const TEXTOS = {
     // eventos e poderes da Saga
     'ev.gelo': 'Gelo!', 'ev.terremoto': 'Terremoto!', 'ev.lava': 'Lava!', 'ev.vento': 'Ventania!', 'ev.gigante': 'Gigante!',
     'pd.missil': 'Míssil', 'pd.trocar': 'Trocar', 'pd.chacoalhar': 'Chacoalhar', 'pd.calor': 'Calor', 'pd.cola': 'Cola',
-    'escolhaPoder': 'Escolha um poder', 'rival': 'Rival: {nome}', 'ja': 'Já!', 'cheio': 'Cheio!',
+    'serie': 'Série!', 'sagaRival': 'Rival {n}/{total}: {nome}', 'escolhaPoder': 'Escolha um poder', 'rival': 'Rival: {nome}', 'ja': 'Já!', 'cheio': 'Cheio!',
   },
   en: {
     voce: 'You', cpu: 'CPU', jogador1: 'Blue', jogador2: 'Orange',
@@ -64,7 +64,7 @@ export const TEXTOS = {
     'transborda': 'Overflow', 'transborda.dica': 'Pouring into a full jar spills: what falls into the jar below counts there.',
     'ev.gelo': 'Ice!', 'ev.terremoto': 'Earthquake!', 'ev.lava': 'Lava!', 'ev.vento': 'Gale!', 'ev.gigante': 'Giant!',
     'pd.missil': 'Missile', 'pd.trocar': 'Swap', 'pd.chacoalhar': 'Shake', 'pd.calor': 'Heat', 'pd.cola': 'Glue',
-    'escolhaPoder': 'Pick a power', 'rival': 'Rival: {nome}', 'ja': 'Go!', 'cheio': 'Full!',
+    'serie': 'Series!', 'sagaRival': 'Rival {n}/{total}: {nome}', 'escolhaPoder': 'Pick a power', 'rival': 'Rival: {nome}', 'ja': 'Go!', 'cheio': 'Full!',
   },
 };
 

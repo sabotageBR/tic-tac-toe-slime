@@ -16,15 +16,15 @@ import { PIGMENTOS, HEX } from './cores.js';
 /**
  * Gota de um jogador (ou cinza com jogador 0).
  * @param {any} m mundo
- * @param {{ x: number, y: number, d: number, jogador: number, preso?: boolean, material?: any, id?: number, nivel?: number, pontos?: number[] }} o
+ * @param {{ x: number, y: number, d: number, jogador: number, preso?: boolean, material?: any, id?: number, nivel?: number, pontos?: number[], pigmento?: number[], hex?: string }} o
  */
 export function criarGota(m, o) {
   const s = m.criarSlime({
-    x: o.x, y: o.y, diametro: o.d, pigmento: PIGMENTOS[o.jogador] || PIGMENTOS[0], preso: !!o.preso,
+    x: o.x, y: o.y, diametro: o.d, pigmento: o.pigmento || PIGMENTOS[o.jogador] || PIGMENTOS[0], preso: !!o.preso,
     material: o.material || 'gelatina', nivel: o.nivel || o.jogador || 1, pontos: o.pontos,
   });
   if (!s) return null;
-  s.dados.hex = HEX[o.jogador] || HEX[0];
+  s.dados.hex = o.hex || HEX[o.jogador] || HEX[0];
   s.dados.jogador = o.jogador;
   if (o.id !== undefined) s.dados.id = o.id;
   return s;
@@ -320,7 +320,7 @@ export function rede(m, pecas, est, dt, tMax = 0.5) {
   let n = 0;
   for (const p of pecas) {
     const s = p.s;
-    if (!s || !s.ativo || s.preso || s.dados.derretendo || s.dados.dentro !== undefined) continue;
+    if (!s || !s.ativo || s.preso || s.dados.derretendo || s.dados.dentroDe || s.dados.semRede) continue;
     if (est.dentro(p.casa, s.cx, s.cy)) { s.dados.foraT = 0; continue; }
     s.dados.foraT = (s.dados.foraT || 0) + dt;
     if (s.dados.foraT >= tMax) {

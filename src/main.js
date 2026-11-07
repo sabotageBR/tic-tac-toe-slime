@@ -50,6 +50,7 @@ function novoModo() {
     doisJogadores: J.dois,
     nivel: dep.nivel >= 0 ? dep.nivel : undefined,
     primeira: dep.primeira || J.vistos === 0,
+    hoje: new Date().toISOString().slice(0, 10),
     lang,
   });
   J.regra = J.modo.regra;
@@ -179,9 +180,13 @@ function atualizarHud(forcar) {
     vez = !v ? T('empate') : J.dois ? T('venceu', { nome: nome(v) }) : h.cpu[v] ? T('vocPerdeu') : T('vocVenceu');
   } else if (h.texto) vez = T(h.texto, h.textoVars);
   else if (h.estado === 'vez') vez = h.cpu[h.vez] ? T('cpuPensa') : J.dois ? T('vezDe', { nome: nome(h.vez) }) : T('suaVez');
-  const chave = [h.vez, h.placar[1], h.placar[2], vez, J.dois, h.estado].join('|');
+  const poderes = h.poderes || [];
+  const dica = h.dica ? T(h.dica.chave, h.dica.vars) : T(J.regra + '.dica');
+  const chave = [h.vez, h.placar[1], h.placar[2], vez, J.dois, h.estado, dica, JSON.stringify(poderes)].join('|');
   if (!forcar && chave === hudChave) return;
   hudChave = chave;
+  $('dica').textContent = dica;
+  montarPoderes(poderes, h.minhaVez);
   $('nome1').textContent = nome(1);
   $('nome2').textContent = nome(2);
   $('pts1').textContent = String(h.placar[1]);
@@ -189,6 +194,21 @@ function atualizarHud(forcar) {
   $('j1').classList.toggle('da-vez', !h.resultado && h.vez === 1);
   $('j2').classList.toggle('da-vez', !h.resultado && h.vez === 2);
   $('vez').textContent = vez;
+}
+
+/** Botoes dos poderes (Saga): toque usa (ou arma, quando precisa de alvo). @param {any[]} lista @param {boolean} pode */
+function montarPoderes(lista, pode) {
+  const el = $('poderes');
+  el.textContent = '';
+  for (const p of lista) {
+    const b = document.createElement('button');
+    b.textContent = T('pd.' + p.id);
+    if (p.usado) b.classList.add('usado');
+    if (p.armado) b.classList.add('armado');
+    b.disabled = !!p.usado || !pode;
+    b.addEventListener('click', () => { if (J.modo.poder(p.id)) mesa.tocar('botao'); atualizarHud(true); });
+    el.appendChild(b);
+  }
 }
 
 $('btnReiniciar').addEventListener('click', () => { mesa.tocar('botao'); J.modo.reiniciar(); atualizarHud(true); });

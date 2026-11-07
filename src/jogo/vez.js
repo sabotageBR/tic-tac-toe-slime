@@ -30,6 +30,7 @@ export function criarVez(o) {
   let res = null;
   const fila = criarFila();
   let poupar = !!o.poupar;
+  let nivel = o.nivel;
 
   /** @param {any} a @param {any} b */
   const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -50,9 +51,9 @@ export function criarVez(o) {
     return true;
   }
 
-  /** Lance que a CPU faria agora para quem tem a vez. @param {number} [nivel] */
-  function sugerir(nivel) {
-    return escolher(R, E, { nivel: nivel === undefined ? o.nivel : nivel, rng: o.rng, poupar, orcamento: o.orcamento });
+  /** Lance que a CPU faria agora para quem tem a vez. @param {number} [nv] */
+  function sugerir(nv) {
+    return escolher(R, E, { nivel: nv === undefined ? nivel : nv, rng: o.rng, poupar, orcamento: o.orcamento });
   }
 
   return {
@@ -89,6 +90,15 @@ export function criarVez(o) {
       fila.por(...a);
       if (estado === 'vez') estado = 'encenando';
     },
+    /** Encerra a partida com um resultado de fora das regras (relogio zerado). @param {{ vencedor: number }} r */
+    forcar(r) {
+      if (estado === 'fim') return;
+      res = r;
+      estado = 'fim';
+      tFim = 0;
+      fila.limpar();
+      o.eventos.push({ tipo: 'fim', vencedor: r.vencedor, linha: null });
+    },
     /** Troca o estado logico (eventos que mexem no tabuleiro fora do lance). @param {any} F */
     trocar(F) { E = F; },
     /** Recomeca com um estado novo. @param {any} F */
@@ -102,6 +112,8 @@ export function criarVez(o) {
     },
     /** @param {boolean} v */
     set poupar(v) { poupar = v; },
+    /** @param {number} v forca da CPU (a Saga troca a cada rival) */
+    set nivel(v) { nivel = v; },
     get E() { return E; },
     get estado() { return estado; },
     get resultado() { return res; },

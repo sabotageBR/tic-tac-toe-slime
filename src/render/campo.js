@@ -100,6 +100,9 @@ export function criarCampo({ janela, celula, raio }) {
       const i22 = okA ? a11 / det : 1;
       const tex = s.dados.textura || 0;
       const texT = s.dados.texturaT === undefined ? 1 : s.dados.texturaT;
+      // peso da dominancia (tic_tac_toe_slime): o slime engolido (dados.peso > 1) domina o proprio
+      // miolo dentro do grande e aparece com a cor dele, com a costura em volta
+      const peso = s.dados.peso || 1;
       for (let j = by0; j <= by1; j++) {
         const ini = j * nx + bx0;
         const fim = j * nx + bx1 + 1;
@@ -133,7 +136,7 @@ export function criarCampo({ janela, celula, raio }) {
             if (q <= 0) continue;
             const w = q * q * q;
             const w2 = w * w;
-            tD[k] += w;
+            tD[k] += w * peso;
             tW[k] += w2;
             const kc = k * N_PIG;
             tC[kc] += w2 * c0;

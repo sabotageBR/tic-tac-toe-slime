@@ -35,6 +35,8 @@ const NUMPAD = { 7: 0, 8: 1, 9: 2, 4: 3, 5: 4, 6: 5, 1: 6, 2: 7, 3: 8 };
  * @property {(api: any) => any} [desenho]  desenhos do modelo (fundo, atras, topo) para a cena
  * @property {(api: any) => any} [hud]
  * @property {(api: any, acao: string) => boolean} [poder]
+ * @property {(api: any, x: number, y: number, fase: string) => boolean} [apontar]  toque fora das casas (true = tratado)
+ * @property {(api: any, res: any) => number[]} [linhaCasas]  casas por onde passa o risco da vitoria
  */
 
 /**
@@ -71,7 +73,7 @@ export function criarModoVez(G, o = {}) {
   let vez = null;
 
   const api = {
-    m, ctx, est, eventos, pecas, sub, R, rng, janela,
+    m, ctx, est, eventos, pecas, sub, R, rng, janela, placar,
     /** dados livres do modelo */
     dados: /** @type {Record<string, any>} */ ({}),
     get vez() { return vez; },
@@ -170,11 +172,11 @@ export function criarModoVez(G, o = {}) {
         nome: 'nova',
         passo() {
           pecas.clear();
-          if (G.montar) G.montar(api);
           comeca = comeca === 1 ? 2 : 1;
           primeira = false;
           vez.poupar = false;
           vez.reiniciar(inicial(comeca));
+          if (G.montar) G.montar(api);
           limpando = false;
           api.dados.derretendoTudo = false;
           eventos.push({ tipo: 'nivel', acao: 'start', modelo: G.id, regra: sub });
@@ -225,6 +227,7 @@ export function criarModoVez(G, o = {}) {
     apontar(x, y, fase) {
       const casa = est.celulaEm(x, y);
       hover = casa;
+      if (G.apontar && G.apontar(api, x, y, fase)) return;
       if (fase === 'baixo') tocarCasa(casa);
     },
     /** @param {string} codigo @param {boolean} baixo */
@@ -273,7 +276,7 @@ export function criarModoVez(G, o = {}) {
       return {
         realce: api.minhaVez && livres.has(hover) ? hover : -1,
         corVez: vez.E.vez,
-        linha: res && res.vencedor && res.linha ? { casas: res.linha, jogador: res.vencedor } : null,
+        linha: res && res.vencedor && res.linha ? { casas: G.linhaCasas ? G.linhaCasas(api, res) : res.linha, jogador: res.vencedor } : null,
         ...(G.visual ? G.visual(api) : {}),
       };
     },
