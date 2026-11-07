@@ -32,7 +32,7 @@ const salvo = armazem.ler('prefs', {}) || {};
 /** estado do prototipo */
 const J = {
   modo: /** @type {any} */ (null),
-  regra: dep.regra || (salvo && salvo['regra' + idModelo]) || '',
+  regra: dep.regra || /** @type {any} */ (globalThis).__velhaRegra || (salvo && salvo['regra' + idModelo]) || '', // modelo
   dois: dep.dois,
   t: 0,
   jogou: false,

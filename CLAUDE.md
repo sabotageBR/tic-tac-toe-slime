@@ -68,8 +68,8 @@ Todos têm o **Clássico** (o original) e modos novos; CPU (nível 0–4, `src/j
 | `npm run servir` | http://127.0.0.1:5390/ (jogo) e `/modelos/` (hub); `npm run lan` para o celular |
 | `node tools/shot.mjs "<query>" LxA saida.png [ms]` | print no Chrome headless (porta 4390; `PORTA=` muda) |
 | `npm run gifs -- [modelo...]` | filme determinístico `?filme=N&cada=K` → GIF/MP4/JPG em `docs/modelos/` (porta 4392) |
-| `npm run jogar` | os modelos em tempo real pelo CDP (porta 4391, depuração 9391) |
-| `npm run artifact` | monta `.tmp/artifact/` (hub + `jogo-N.html` sem SDK) para publicar no claude.ai |
+| `npm run jogar -- [modelo...] [--tam=390x844] [--render=2d]` | os modelos em tempo real pelo CDP (toque e arrasto de verdade, 2P, reinício, Esc; erros do console e fps; prints em `.tmp/jogar/`; porta 4391, depuração 9391). O fps do headless é o WebGL por software: o JS do quadro fica abaixo de 1 ms |
+| `npm run artifact` | monta `.tmp/artifact/` (hub com `window.__velhaHub`, `jogo-N.html` sem SDK com `__velhaModelo`/`__velhaRegra`, `midia/`); publicar o `index.html` com `root: .tmp/artifact` (só com o OK do usuário) |
 
 Portas deste projeto: 5390 (servir), 4390–4395, CDP 9390–9395 (os irmãos usam 537x, 538x, 9372–9382).
 

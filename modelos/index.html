@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Slime Tac Toe — modelos</title>
+<style>
+  @font-face { font-family: 'Fredoka'; src: url('../src/ui/fontes/fredoka-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'Fredoka'; src: url('../src/ui/fontes/fredoka-latin-600-normal.woff2') format('woff2'); font-weight: 600; }
+  :root { --tinta: #17161c; --papel: #f3f2ee; --azul: #2f7fe0; --laranja: #f2862a; --cartao: #ffffff; --suave: #5b5966; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --tinta: #f1f0f4; --papel: #1b1a20; --cartao: #26252c; --suave: #b9b7c4; }
+  }
+  :root[data-theme="dark"] { --tinta: #f1f0f4; --papel: #1b1a20; --cartao: #26252c; --suave: #b9b7c4; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta); font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600;
+    background-image: linear-gradient(rgba(40,60,90,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(40,60,90,.08) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  header { max-width: 1180px; margin: 0 auto; padding: 28px 16px 8px; }
+  h1 { font-size: clamp(28px, 5vw, 44px); margin: 0 0 6px; font-weight: 700; }
+  header p { margin: 4px 0; color: var(--suave); max-width: 760px; line-height: 1.45; }
+  .regra { display: inline-block; margin-top: 8px; padding: 6px 12px; border: 2px solid var(--tinta); border-radius: 12px; background: var(--cartao); }
+  main { max-width: 1180px; margin: 0 auto; padding: 12px 16px 48px; display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); }
+  .ficha { background: var(--cartao); border: 3px solid var(--tinta); border-radius: 18px; box-shadow: 0 4px 0 var(--tinta); overflow: hidden; display: flex; flex-direction: column; }
+  .ficha video, .ficha img { display: block; width: 100%; aspect-ratio: 9 / 16; max-height: 420px; object-fit: cover; object-position: top; background: #f3f2ee; border-bottom: 3px solid var(--tinta); }
+  .corpo { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .num { font-size: 13px; color: var(--suave); }
+  h2 { margin: 0; font-size: 24px; font-weight: 700; }
+  .gancho { margin: 0; font-size: 15px; line-height: 1.4; }
+  .lista { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.45; color: var(--suave); }
+  .modos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .modos span { font-size: 12px; padding: 3px 9px; border-radius: 10px; border: 2px solid var(--tinta); }
+  .modos span.novo { background: #8fe3c8; color: #17161c; }
+  .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 6px; }
+  .acoes a { text-decoration: none; color: #17161c; background: #ffd23a; border: 2px solid var(--tinta); border-radius: 12px; padding: 7px 14px; font-weight: 700; box-shadow: 0 3px 0 var(--tinta); }
+  .acoes a.sec { background: #fff; }
+  .risco { font-size: 13px; color: var(--suave); }
+  .risco b { color: var(--tinta); }
+  footer { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; color: var(--suave); font-size: 14px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Slime Tac Toe: os 6 modelos</h1>
+  <p>Jogo da velha com o motor de slime do Slime Merge (partículas que se amassam, fundem e derretem, cor de pigmento de verdade). Cada modelo tem o <b>Clássico</b> (o jogo da velha original) e modos novos. Jogue contra a CPU ou em 2 jogadores (botão 1P/2P), escolha o modo nos botões de baixo e diga qual vira o jogo.</p>
+  <p class="regra">Regra do projeto para a Poki: a física do slime muda a jogada, não só a aparência.</p>
+</header>
+<main id="fichas"></main>
+<footer>
+  Prova em <code>npm test</code>: os 6 modelos com o bot jogam cada submodo até o fim, contra a CPU e em 2 jogadores; física, IA (o nível máximo nunca perde no 3×3), potes (volume conservado, dono pela contagem, ladrão do Transborda) e as regras.<br>
+  Local: <code>npm run servir</code> → <code>http://127.0.0.1:5390/modelos/</code>; no celular: <code>npm run lan</code>.
+</footer>
+<script>
+  // a pagina jogo-N.html (Artifact) abre o modelo sem parametros de URL; local, o index.html?modelo=N
+  // no Artifact (window.__velhaHub) cada modelo e uma pagina jogo-N.html (sem parametros de URL)
+  const art = !!window.__velhaHub;
+  const link = (n, regra, dois) => (art ? `jogo-${n}${regra ? '-' + regra : ''}.html` : `../index.html?modelo=${n}${regra ? '&regra=' + regra : ''}${dois ? '&dois' : ''}`);
+  const FICHAS = [
+    { n: 6, nome: 'Potes da Velha', video: '6', gancho: 'Nove béqueres no lugar das casas. Sua dose de goo escorre pelo funil e toma a forma do pote; o rival despeja por cima e as cores ficam em camadas.',
+      fisica: ['A física decide o dono: conta as partículas de cada cor dentro do pote quando passa da linha de cheio.', 'Transborda: o que passa da linha sai pelo ladrão e cai no funil do pote de baixo (fonte de taças).'],
+      modos: ['Clássico', '+Encher', '+Potes Grandes', '+Transborda'], risco: 'ritmo mais lento (3 doses por pote); ~1–4 ms de física com o pote cheio.', extra: [['Ver o Transborda', '6t', 'transborda']] },
+    { n: 1, nome: 'Engole-Engole', video: '1', gancho: 'Três tamanhos. O grande cai em cima do pequeno do rival e o engole: o pequeno fica preso lá dentro, chorando, até ser cuspido.',
+      fisica: ['Engolir e cuspir com a gosma de verdade; mover as suas peças pulando de nicho.', 'Fusão: duas iguais vizinhas pulam uma na outra e crescem.'],
+      modos: ['Clássico', '+Engole', '+Fusão', '+4×4', '+Desafio do dia'], risco: 'a física é mais vistosa que decisiva; lembra o Gobblet (mecânica livre, nome e visual não).' },
+    { n: 2, nome: 'Peteleco da Velha', video: '2', gancho: 'Mesa vista de cima: puxe para trás e solte. O slime desliza, bate e para; a casa é de quem tem mais gosma nela.',
+      fisica: ['Tudo é física: atrito de mesa, trombadas, a calha, dois iguais que se batem viram um maior.'],
+      modos: ['Clássico', '+Peteleco', '+Sabão', '+Vento', '+Caos 2P'], risco: 'precisão no celular; a CPU mira com previsão aproximada.' },
+    { n: 3, nome: 'Velha Derrete', video: '3', gancho: 'Só 3 gotas cada: a sua 4ª faz a mais velha (que já treme de susto) derreter e escoar pelo ralo. Sem empate.',
+      fisica: ['Derreter de verdade: o slime amolece, vira líquido e as partículas escoam pelo piso.'],
+      modos: ['Clássico', '+Derrete', '+Onda de calor', '+Relâmpago', '+Melhor de 5'], risco: 'estratégia mais rasa; partidas de 15–30 s.' },
+    { n: 4, nome: 'Mega Velha', video: '4', gancho: '81 nichos em 9 velhinhas. Fechou uma: as 3 gotas saltam, as outras estouram, as paredes somem e nasce um slimão.',
+      fisica: ['A fusão em grupo do Slime Merge; empate congela a velhinha em cinza.'],
+      modos: ['Clássico', '+Mega', '+Mega Rápida'], risco: 'regra complexa para a Poki (C2P); gotas pequenas no celular em pé.' },
+    { n: 5, nome: 'Saga dos Poderes', video: '5', gancho: 'Seis rivais, cada um com um evento: gelo que cai no nicho, terremoto que derruba as gotas, lava, vento e o gigante que ocupa duas casas.',
+      fisica: ['Os eventos mexem nas peças pela física; você ganha 3 poderes por partida (míssil, trocar, chacoalhar, calor, cola).'],
+      modos: ['Clássico', '+Saga', '+Caos 2P'], risco: 'muito conteúdo para balancear (5 eventos e 5 poderes).' },
+  ];
+  const el = document.getElementById('fichas');
+  for (const f of FICHAS) {
+    const ficha = document.createElement('article');
+    ficha.className = 'ficha';
+    const pasta = art ? 'midia/' : '../docs/modelos/';
+    const midia = `<video src="${pasta}${f.video}.mp4" poster="${pasta}${f.video}.jpg" autoplay muted loop playsinline></video>`;
+    ficha.innerHTML = `${midia}
+      <div class="corpo">
+        <div class="num">Modelo ${f.n}</div>
+        <h2>${f.nome}</h2>
+        <p class="gancho">${f.gancho}</p>
+        <ul class="lista">${f.fisica.map((x) => `<li>${x}</li>`).join('')}</ul>
+        <div class="modos">${f.modos.map((m) => `<span class="${m.startsWith('+') ? 'novo' : ''}">${m.replace('+', '')}</span>`).join('')}</div>
+        <div class="risco"><b>Risco:</b> ${f.risco}</div>
+        <div class="acoes"><a href="${link(f.n)}">Jogar</a>${art ? '' : `<a class="sec" href="${link(f.n, '', true)}">2 jogadores</a>`}${(f.extra || []).map(([t, , r]) => `<a class="sec" href="${link(f.n, r)}">${t}</a>`).join('')}</div>
+      </div>`;
+    el.appendChild(ficha);
+  }
+</script>
+</body>
+</html>

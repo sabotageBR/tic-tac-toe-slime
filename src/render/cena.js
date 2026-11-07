@@ -93,10 +93,14 @@ export function criarCena(el, o = {}) {
 
   function garantirCampo(janela) {
     const q = QUALIDADES[qual];
-    const chave = janela.join(',') + '|' + q.celula;
+    // tabuleiros grandes (Mega, Potes, a mesa do Peteleco) cobrem 4 a 6x a area do pote do
+    // slime-merge: a celula cresce para o campo ficar em ~26 mil celulas (o custo do P2G e do shader)
+    const area = (janela[2] - janela[0]) * (janela[3] - janela[1]);
+    const celula = Math.max(q.celula, Math.sqrt(area / 26000));
+    const chave = janela.join(',') + '|' + celula;
     if (chave === campoChave && campo) return campo;
     campoChave = chave;
-    campo = criarCampo({ janela, celula: q.celula, raio: raioCampo });
+    campo = criarCampo({ janela, celula, raio: raioCampo });
     return campo;
   }
 

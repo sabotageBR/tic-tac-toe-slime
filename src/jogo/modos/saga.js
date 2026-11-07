@@ -218,13 +218,13 @@ export function criarModo(o) {
       v.trocar(r.E);
       const C = api.est.celulas[r.casa];
       v.encenar(fazer(() => {
-        const s = criarGota(api.m, { x: C.cx, y: C.y1 - 1.6, d: 2.9, jogador: 0, material: 'gelatina' });
+        // bloco de gelo: azul-claro quase branco, duro (estado gelo), sem rosto
+        const s = criarGota(api.m, { x: C.cx, y: C.y1 - 1.6, d: 2.9, jogador: 0, material: 'gelatina', pigmento: [0.1, 0, 0.02, 0], hex: '#cfefff' });
         if (!s) return;
         s.estado = 'gelo';
         s.tEstado = 999;
         s.dados.semRede = true;
         s.dados.semRosto = true;
-        s.dados.hex = '#bfe6ff';
         s.dados.solto = api.m.tempo;
         api.dados.gelos[r.casa] = s;
         api.eventos.push({ tipo: 'som', nome: 'gelo' });
