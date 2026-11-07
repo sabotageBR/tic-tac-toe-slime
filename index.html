@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Slime Tac Toe</title>
+<link rel="preload" href="src/ui/fontes/fredoka-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="src/ui/estilo.css">
+<!-- Unico script externo permitido pela Poki. -->
+<script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
+</head>
+<body data-orient="retrato">
+<div id="carregando" role="status" aria-label="Loading">
+  <div class="logo">Slime Tac Toe</div>
+  <div class="grade"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div>
+<canvas id="cFundo" class="camada"></canvas>
+<canvas id="cSlime" class="camada"></canvas>
+<canvas id="cTopo" class="camada"></canvas>
+<div id="hud">
+  <header id="topo">
+    <div class="jogador j1" id="j1"><i class="gota"></i><span class="nome" id="nome1">Você</span><b class="pts" id="pts1">0</b></div>
+    <div class="meio"><div class="titulo" id="titulo">Slime Tac Toe</div><div class="vez" id="vez"></div></div>
+    <div class="jogador j2" id="j2"><b class="pts" id="pts2">0</b><span class="nome" id="nome2">CPU</span><i class="gota"></i></div>
+  </header>
+  <main id="area"></main>
+  <div id="meta"><div class="dica" id="dica"></div></div>
+  <footer id="base">
+    <div class="submodos" id="submodos"></div>
+    <div class="acoes">
+      <button class="btn redondo" id="btnDois" title="2 jogadores" aria-label="2 jogadores">1P</button>
+      <button class="btn redondo" id="btnReiniciar" title="Recomeçar" aria-label="Recomeçar"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v5h5"/></svg></button>
+      <button class="btn redondo" id="btnSom" title="Som" aria-label="Som"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg></button>
+    </div>
+  </footer>
+</div>
+<canvas id="cTela" class="camada"></canvas>
+<pre id="filme" hidden></pre>
+<div id="debug" hidden></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

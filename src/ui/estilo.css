@@ -1,0 +1,106 @@
+/* HUD em DOM por cima dos canvases (molde do slime-merge: papel de caderno, tinta grossa, numeros
+   brancos com contorno). As alturas do #topo, #meta e #base sao fixas: a camera enquadra a #area,
+   e o que muda na partida nao pode mudar o tamanho do tabuleiro. */
+@font-face { font-family: 'Fredoka'; src: url('fontes/fredoka-latin-700-normal.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Fredoka'; src: url('fontes/fredoka-latin-600-normal.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+
+:root {
+  --tinta: #17161c;
+  --papel: #f3f2ee;
+  --azul: #2f7fe0;
+  --laranja: #f2862a;
+  --ui: clamp(13px, 1.9vmin + 6px, 21px);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body {
+  margin: 0; height: 100%; overflow: hidden; background: var(--papel); color: var(--tinta);
+  font-family: 'Fredoka', system-ui, -apple-system, 'Segoe UI', sans-serif; font-weight: 700;
+  user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  touch-action: none; overscroll-behavior: none; font-size: var(--ui);
+}
+.camada { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; pointer-events: none; }
+
+#hud {
+  position: fixed; inset: 0; display: grid; pointer-events: none;
+  grid-template-columns: 1fr;
+  grid-template-rows: 3.3em minmax(0, 1fr) 1.7em auto;
+  grid-template-areas: "topo" "area" "meta" "base";
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) calc(env(safe-area-inset-right, 0px) + 10px)
+           calc(env(safe-area-inset-bottom, 0px) + 10px) calc(env(safe-area-inset-left, 0px) + 10px);
+  gap: 6px;
+}
+#hud > * { pointer-events: none; }
+#hud button, #hud .clicavel { pointer-events: auto; }
+#topo { grid-area: topo; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#area { grid-area: area; min-height: 0; }
+#meta { grid-area: meta; display: flex; justify-content: center; align-items: center; }
+#base { grid-area: base; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+
+body[data-orient="paisagem"] #hud {
+  grid-template-columns: minmax(150px, 22%) minmax(0, 1fr) minmax(150px, 22%);
+  grid-template-rows: 3.3em minmax(0, 1fr) 1.7em;
+  grid-template-areas: "topo topo topo" "lado area base" "meta meta meta";
+}
+body[data-orient="paisagem"] #base { justify-content: center; }
+body[data-orient="paisagem"] .submodos { flex-direction: column; }
+
+/* jogadores: gota da cor, nome e placar; o da vez cresce e pula */
+.jogador {
+  display: flex; align-items: center; gap: 0.35em; padding: 0.25em 0.55em; border-radius: 1em;
+  border: 0.15em solid var(--tinta); background: #fff; box-shadow: 0 0.15em 0 var(--tinta);
+  transition: transform 0.2s, opacity 0.2s; opacity: 0.55; min-width: 0;
+}
+body[data-plataforma="poki"][data-orient="retrato"] .j1 { margin-left: 58px; }
+.jogador.da-vez { opacity: 1; transform: scale(1.08); }
+.jogador .gota { width: 1.1em; height: 1.1em; border-radius: 50% 50% 46% 46%; border: 0.12em solid var(--tinta); flex: none; }
+.j1 .gota { background: var(--azul); }
+.j2 .gota { background: var(--laranja); }
+.jogador .nome { font-size: 0.8em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jogador .pts { font-size: 1.25em; color: #fff; -webkit-text-stroke: 0.2em var(--tinta); paint-order: stroke fill; }
+.jogador.da-vez .gota { animation: pula 0.7s ease-in-out infinite; }
+@keyframes pula { 0%, 100% { transform: translateY(0) scale(1, 1); } 40% { transform: translateY(-0.18em) scale(0.92, 1.08); } 70% { transform: translateY(0.04em) scale(1.08, 0.92); } }
+.meio { flex: 1; text-align: center; min-width: 0; }
+.titulo { font-size: 0.82em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vez { font-size: 0.7em; font-weight: 600; opacity: 0.75; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 1.2em; }
+
+.dica { font-size: 0.68em; font-weight: 600; opacity: 0.8; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* submodos: Classico e os modos novos */
+.submodos { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.submodos button {
+  font: inherit; font-size: 0.72em; padding: 0.35em 0.75em; border-radius: 1em; cursor: pointer;
+  border: 0.15em solid var(--tinta); background: #fff; color: var(--tinta); box-shadow: 0 0.14em 0 var(--tinta);
+}
+.submodos button.ativo { background: #8fe3c8; }
+.acoes { display: flex; gap: 10px; }
+.btn {
+  position: relative; display: grid; place-items: center; border: 0.17em solid var(--tinta); cursor: pointer; padding: 0;
+  color: var(--tinta); background: #fff; box-shadow: 0 0.18em 0 var(--tinta); font: inherit; touch-action: manipulation;
+}
+.btn:active { transform: translateY(0.12em); box-shadow: 0 0.06em 0 var(--tinta); }
+.btn svg { width: 58%; height: 58%; stroke: currentColor; stroke-width: 2.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.btn.redondo { width: 2.3em; height: 2.3em; border-radius: 50%; font-size: 0.85em; }
+.btn.mudo { opacity: 0.5; }
+
+/* paineis de escolha dos modelos (poderes da Saga, mira do Peteleco) ficam no canvas; o DOM so tem botoes */
+.poderes { display: flex; gap: 8px; }
+.poderes button { font: inherit; font-size: 0.75em; padding: 0.3em 0.6em; border-radius: 0.8em; border: 0.15em solid var(--tinta); background: #fff8d8; box-shadow: 0 0.14em 0 var(--tinta); cursor: pointer; }
+.poderes button.usado { opacity: 0.35; }
+.poderes button.armado { background: #ffd23a; }
+
+/* carregando: o # e nove gotas */
+#carregando { position: fixed; inset: 0; display: grid; place-content: center; gap: 18px; background: var(--papel); z-index: 9; }
+#carregando .logo { font-size: 2em; text-align: center; color: #fff; -webkit-text-stroke: 0.2em var(--tinta); paint-order: stroke fill; }
+#carregando .grade { display: grid; grid-template-columns: repeat(3, 44px); gap: 8px; justify-content: center; }
+#carregando .grade i { width: 44px; height: 44px; border-radius: 10px; border: 3px solid var(--tinta); background: #fff; position: relative; }
+#carregando .grade i::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 5px; height: 24px; border-radius: 50% 50% 40% 40%; background: var(--azul); transform: scale(0); animation: cai 1.8s infinite; }
+#carregando .grade i:nth-child(even)::after { background: var(--laranja); }
+#carregando .grade i:nth-child(2)::after { animation-delay: 0.2s; } #carregando .grade i:nth-child(3)::after { animation-delay: 0.4s; }
+#carregando .grade i:nth-child(4)::after { animation-delay: 0.6s; } #carregando .grade i:nth-child(5)::after { animation-delay: 0.8s; }
+#carregando .grade i:nth-child(6)::after { animation-delay: 1s; } #carregando .grade i:nth-child(7)::after { animation-delay: 1.2s; }
+#carregando .grade i:nth-child(8)::after { animation-delay: 1.4s; } #carregando .grade i:nth-child(9)::after { animation-delay: 1.6s; }
+@keyframes cai { 0% { transform: translateY(-20px) scale(0.4); } 30% { transform: translateY(0) scale(1.1, 0.85); } 45%, 100% { transform: translateY(0) scale(1); } }
+
+#debug { position: fixed; left: 6px; bottom: 6px; font: 11px/1.3 monospace; background: rgba(255,255,255,0.85); padding: 4px 6px; border-radius: 6px; pointer-events: none; z-index: 8; }
+body.semhud #hud { display: none; }
