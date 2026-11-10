@@ -2,7 +2,8 @@
 // iterativo. O orcamento e em NOS visitados, nunca em tempo: a mesma posicao e a mesma semente
 // dao sempre o mesmo lance (determinismo dos testes, GIFs e filmes).
 // Cada regra (src/jogo/regras/*.js) expoe: jogadas(E), aplicar(E, j) -> { E }, resultado(E),
-// chave(E) e avaliar(E, jogador). E.vez e quem joga.
+// chave(E) e avaliar(E, jogador). E.vez e quem joga; um lance pode manter a vez (o colapso da
+// Quantica): ai o filho e avaliado sem trocar o sinal.
 
 /**
  * Niveis da CPU: chance de um lance sorteado (o erro de proposito) e profundidade da busca.
@@ -58,7 +59,11 @@ function negamax(R, E, prof, alfa, beta, ply, ctx) {
   let melhor = -Infinity;
   let im = 0;
   for (let i = 0; i < js.length; i++) {
-    const v = -negamax(R, R.aplicar(E, js[i]).E, prof - 1, -beta, -alfa, ply + 1, ctx);
+    const F = R.aplicar(E, js[i]).E;
+    // lance que nao troca a vez (o colapso da Quantica): o filho tem o mesmo ponto de vista
+    const v = F.vez === E.vez
+      ? negamax(R, F, prof - 1, alfa, beta, ply + 1, ctx)
+      : -negamax(R, F, prof - 1, -beta, -alfa, ply + 1, ctx);
     if (v > melhor) { melhor = v; im = i; }
     if (v > alfa) alfa = v;
     if (alfa >= beta) break;
@@ -79,7 +84,10 @@ export function avaliarLances(R, E, prof, orcamento = 30000) {
   const ctx = { nos: 0, max: orcamento, tt: new Map() };
   for (let p = 1; p <= prof; p++) {
     const vs = [];
-    for (const j of js) vs.push(-negamax(R, R.aplicar(E, j).E, p - 1, -Infinity, Infinity, 1, ctx));
+    for (const j of js) {
+      const F = R.aplicar(E, j).E;
+      vs.push(F.vez === E.vez ? negamax(R, F, p - 1, -Infinity, Infinity, 1, ctx) : -negamax(R, F, p - 1, -Infinity, Infinity, 1, ctx));
+    }
     // so aceita a profundidade completa (a incompleta mistura nos cortados)
     if (ctx.nos > ctx.max && p > 1) break;
     valores = vs;

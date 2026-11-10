@@ -7,7 +7,12 @@ import * as engole from './modos/engole.js';
 import * as peteleco from './modos/peteleco.js';
 import * as mega from './modos/mega.js';
 import * as saga from './modos/saga.js';
+import * as quantica from './tec/quantica.js';
+import * as cubo from './tec/cubo.js';
 import * as sobrecarga from './tec/sobrecarga.js';
+import * as orbita from './tec/orbita.js';
+import * as repulsor from './tec/repulsor.js';
+import * as sincronia from './tec/sincronia.js';
 
 /** @type {Record<string, { id: string, tec?: boolean, criarModo: (o: any) => any }>} */
 export const MODELOS = {
@@ -18,5 +23,10 @@ export const MODELOS = {
   4: { id: 'mega', criarModo: mega.criarModo },
   5: { id: 'saga', criarModo: saga.criarModo },
   6: { id: 'potes', criarModo: potes.criarModo },
+  7: { id: 'quantica', tec: true, criarModo: quantica.criarModo },
+  8: { id: 'cubo', tec: true, criarModo: cubo.criarModo },
   9: { id: 'sobrecarga', tec: true, criarModo: sobrecarga.criarModo },
+  10: { id: 'orbita', tec: true, criarModo: orbita.criarModo },
+  11: { id: 'repulsor', tec: true, criarModo: repulsor.criarModo },
+  12: { id: 'sincronia', tec: true, criarModo: sincronia.criarModo },
 };
