@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Slime Tac Toe — modelos</title>
+<title>Jogo da velha — modelos</title>
 <style>
   @font-face { font-family: 'Fredoka'; src: url('../src/ui/fontes/fredoka-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
   @font-face { font-family: 'Fredoka'; src: url('../src/ui/fontes/fredoka-latin-600-normal.woff2') format('woff2'); font-weight: 600; }
@@ -38,18 +38,40 @@
   .acoes a.sec { background: #fff; }
   .risco { font-size: 13px; color: var(--suave); }
   .risco b { color: var(--tinta); }
+  .secao { max-width: 1180px; margin: 0 auto; padding: 18px 16px 0; }
+  .secao .nome { font-size: clamp(22px, 3.6vw, 32px); font-weight: 700; margin: 0 0 4px; }
+  .secao p { margin: 4px 0; color: var(--suave); max-width: 760px; line-height: 1.45; }
+  /* fichas da Serie Tech: cartao escuro com fio neon */
+  .ficha.tec { background: #070b18; color: #e8f6ff; border-color: #2fe6ff; box-shadow: 0 4px 0 #ff45dc; border-radius: 6px; }
+  .ficha.tec video { background: #04060f; border-bottom-color: #2fe6ff; }
+  .ficha.tec .num, .ficha.tec .lista, .ficha.tec .risco { color: #9fb4d8; }
+  .ficha.tec .risco b { color: #e8f6ff; }
+  .ficha.tec h2 { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: 0.06em; text-transform: uppercase; font-size: 21px; }
+  .ficha.tec .modos span { border-color: #4a6a9a; border-radius: 3px; }
+  .ficha.tec .modos span.novo { background: #2fe6ff; color: #04060f; border-color: #2fe6ff; }
+  .ficha.tec .acoes a { background: #2fe6ff; border-color: #2fe6ff; border-radius: 4px; box-shadow: 0 3px 0 #0b6f80; color: #04060f; }
+  .ficha.tec .acoes a.sec { background: transparent; color: #e8f6ff; border-color: #4a6a9a; box-shadow: none; }
   footer { max-width: 1180px; margin: 0 auto; padding: 0 16px 40px; color: var(--suave); font-size: 14px; line-height: 1.5; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Slime Tac Toe: os 6 modelos</h1>
-  <p>Jogo da velha com o motor de slime do Slime Merge (partículas que se amassam, fundem e derretem, cor de pigmento de verdade). Cada modelo tem o <b>Clássico</b> (o jogo da velha original) e modos novos. Jogue contra a CPU ou em 2 jogadores (botão 1P/2P), escolha o modo nos botões de baixo e diga qual vira o jogo.</p>
-  <p class="regra">Regra do projeto para a Poki: a física do slime muda a jogada, não só a aparência.</p>
+  <h1>Jogo da velha: 12 modelos jogáveis</h1>
+  <p>Duas séries. Cada modelo tem o <b>Clássico</b> (o jogo da velha original) e modos novos. Jogue contra a CPU ou em 2 jogadores (botão 1P/2P), escolha o modo nos botões de baixo e diga qual vira o jogo.</p>
+  <p class="regra">Regra do projeto para a Poki: a mecânica muda a jogada, não só a aparência.</p>
 </header>
+<section class="secao">
+  <div class="nome">Série Tech: 6 versões ultra tecnológicas</div>
+  <p>Sem slime e sem física de partículas: neon, holograma e uma mecânica própria em cada versão (ciano × magenta). Sons todos sintetizados.</p>
+</section>
+<main id="fichasTec"></main>
+<section class="secao">
+  <div class="nome">Série Slime: os 6 modelos com o motor do Slime Merge</div>
+  <p>Partículas que se amassam, fundem e derretem, com cor de pigmento de verdade. Aqui a física do slime muda a jogada.</p>
+</section>
 <main id="fichas"></main>
 <footer>
-  Prova em <code>npm test</code>: os 6 modelos com o bot jogam cada submodo até o fim, contra a CPU e em 2 jogadores; física, IA (o nível máximo nunca perde no 3×3), potes (volume conservado, dono pela contagem, ladrão do Transborda) e as regras.<br>
+  Prova em <code>npm test</code>: os 12 modelos com o bot jogam cada submodo até o fim, contra a CPU e em 2 jogadores; física, IA (o nível máximo nunca perde no 3×3), potes (volume conservado, dono pela contagem, ladrão do Transborda), as regras de cada modelo e o determinismo. A Série Tech foi calibrada com partidas de bot (vantagem de quem começa e duração).<br>
   Local: <code>npm run servir</code> → <code>http://127.0.0.1:5390/modelos/</code>; no celular: <code>npm run lan</code>.
 </footer>
 <script>
@@ -58,6 +80,24 @@
   const art = !!window.__velhaHub;
   const link = (n, regra, dois) => (art ? `jogo-${n}${regra ? '-' + regra : ''}.html` : `../index.html?modelo=${n}${regra ? '&regra=' + regra : ''}${dois ? '&dois' : ''}`);
   const FICHAS = [
+    { serie: 'tec', n: 9, nome: 'Sobrecarga', video: '9', gancho: 'O tabuleiro é um reator. Cada toque carrega um núcleo seu ou vazio; no limite ele descarrega em raios, captura os vizinhos e a reação segue em cadeia.',
+      fisica: ['Limite = número de vizinhos: 2 no canto, 3 na borda, 4 no meio. O núcleo que treme está a um toque de descarregar.', 'Sem empate: a carga só cresce, o tabuleiro satura e alguém fecha a linha.'],
+      modos: ['Clássico', '+Sobrecarga 3×3', '+Reator 4×4'], risco: 'a cascata é difícil de prever nas primeiras partidas.' },
+    { serie: 'tec', n: 8, nome: 'Holo Cubo', video: '8', gancho: 'Um cubo 3×3×3 de holograma que gira. Toque numa coluna: o bloco cai e empilha. São 49 linhas possíveis, em qualquer direção do cubo.',
+      fisica: ['Arraste para girar; parado, o cubo balança devagar para o 3D se ler.', 'O centro é um núcleo neutro (tira a casa mais forte). Pontos: enche o cubo e vence quem fechou mais linhas.'],
+      modos: ['Clássico', '+Cubo 3D', '+Pontos'], risco: 'leitura do 3D no celular; quem começa leva vantagem na primeira linha.', extra: [['Ver o Pontos', '', 'cuboPontos']] },
+    { serie: 'tec', n: 11, nome: 'Repulsor', video: '11', gancho: 'Peças magnéticas que flutuam. A peça nova solta um pulso e empurra as vizinhas uma casa; quem sai do tabuleiro é ejetada.',
+      fisica: ['A prévia mostra, antes do toque, para onde cada vizinha vai.', 'Atrator: o pulso puxa para perto quem está a 2 casas (5×5, 4 em linha).'],
+      modos: ['Clássico', '+Repulsor', '+Atrator'], risco: 'partidas mais longas entre dois que defendem bem (teto de 36 lances).' },
+    { serie: 'tec', n: 10, nome: 'Órbita', video: '10', gancho: 'Uma estação espacial com gravidade. O módulo cai na coluna; depois de cada lance a estação gira 90° e tudo cai de novo.',
+      fisica: ['A linha vale depois do giro: você joga pensando um giro à frente.', 'Se o giro dá linha aos dois, é empate.'],
+      modos: ['Clássico', '+Órbita 5×5', '+Órbita 4×4'], risco: 'no 4×4 quem começa leva vantagem (a partida alterna quem começa).' },
+    { serie: 'tec', n: 7, nome: 'Velha Quântica', video: '7', gancho: 'Cada marca fica em duas casas ao mesmo tempo. Fechou um ciclo de pares, o rival escolhe onde a última cai e tudo colapsa em cascata.',
+      fisica: ['Dois toques por lance; o arco de luz liga as duas casas da marca.', 'Casa colapsada vira clássica. Se o colapso der linha aos dois, vence a que ficou pronta antes.'],
+      modos: ['Clássico', '+Quântica'], risco: 'a regra pede um tutorial (é a mais difícil de entender sem texto).' },
+    { serie: 'tec', n: 12, nome: 'Sincronia', video: '12', gancho: 'Um feixe de scanner varre as casas. Toque na hora certa para travar a casa que você quer. Travou casa ocupada: perdeu a vez.',
+      fisica: ['O feixe acelera a cada marca. A CPU também erra o tempo, conforme o nível.', 'Turbo: o feixe vai e volta, bem mais rápido.'],
+      modos: ['Clássico', '+Sincronia', '+Turbo'], risco: 'é o arcade da série: estratégia rasa, vale pelo reflexo e pelo 2 jogadores.' },
     { n: 6, nome: 'Potes da Velha', video: '6', gancho: 'Nove béqueres no lugar das casas. Sua dose de goo escorre pelo funil e toma a forma do pote; o rival despeja por cima e as cores ficam em camadas.',
       fisica: ['A física decide o dono: conta as partículas de cada cor dentro do pote quando passa da linha de cheio.', 'Transborda: o que passa da linha sai pelo ladrão e cai no funil do pote de baixo (fonte de taças).'],
       modos: ['Clássico', '+Encher', '+Potes Grandes', '+Transborda'], risco: 'ritmo mais lento (3 doses por pote); ~1–4 ms de física com o pote cheio.', extra: [['Ver o Transborda', '6t', 'transborda']] },
@@ -77,10 +117,10 @@
       fisica: ['Os eventos mexem nas peças pela física; você ganha 3 poderes por partida (míssil, trocar, chacoalhar, calor, cola).'],
       modos: ['Clássico', '+Saga', '+Caos 2P'], risco: 'muito conteúdo para balancear (5 eventos e 5 poderes).' },
   ];
-  const el = document.getElementById('fichas');
   for (const f of FICHAS) {
+    const el = document.getElementById(f.serie === 'tec' ? 'fichasTec' : 'fichas');
     const ficha = document.createElement('article');
-    ficha.className = 'ficha';
+    ficha.className = f.serie === 'tec' ? 'ficha tec' : 'ficha';
     const pasta = art ? 'midia/' : '../docs/modelos/';
     const midia = `<video src="${pasta}${f.video}.mp4" poster="${pasta}${f.video}.jpg" autoplay muted loop playsinline></video>`;
     ficha.innerHTML = `${midia}

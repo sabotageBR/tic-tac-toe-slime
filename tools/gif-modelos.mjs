@@ -2,7 +2,7 @@
 // os quadros pelo --dump-dom do Chrome headless; o ffmpeg monta o GIF com paleta.
 // Uso: node tools/gif-modelos.mjs [modelo...] [--tam=390x700] [--quadros=120]
 //        [--extra="bot=borda&cesto=aquario"] [--nome=borda-aquario] [--saida=docs/visuais] [--passos=N] [--auto=ms] [--cada=K]
-//   sem modelo: 1 a 6 e o 6t (Transborda). Saida em docs/modelos/<modelo>.gif (ou <saida>/<nome>.gif)
+//   sem modelo: 1 a 6, o 6t (Transborda) e a Serie Tech (7 a 12). Saida em docs/modelos/<modelo>.gif (ou <saida>/<nome>.gif)
 import { spawn, execFileSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -13,7 +13,7 @@ const args = process.argv.slice(2);
 // so o primeiro '=' separa nome e valor (o --extra traz uma query inteira)
 const opt = Object.fromEntries(args.filter((a) => a.startsWith('--')).map((a) => { const i = a.indexOf('='); return i < 0 ? [a.slice(2), ''] : [a.slice(2, i), a.slice(i + 1)]; }));
 const modelos = args.filter((a) => !a.startsWith('--'));
-const lista = modelos.length ? modelos : ['1', '2', '3', '4', '5', '6', '6t'];
+const lista = modelos.length ? modelos : ['1', '2', '3', '4', '5', '6', '6t', '7', '8', '9', '10', '11', '12'];
 const QUADROS = Number(opt.quadros) || 120;
 
 /** roteiro de cada modelo: aquecimento, ritmo do bot, semente e o submodo mostrado */
@@ -25,6 +25,13 @@ const ROTEIRO = {
   5: { passos: 200, auto: 700, cada: 4, semente: 7, extra: 'regra=saga', modelo: 5 },
   6: { passos: 120, auto: 900, cada: 4, semente: 4, extra: 'regra=encher', modelo: 6 },
   '6t': { passos: 600, auto: 600, cada: 4, semente: 4, extra: 'regra=transborda', modelo: 6 },
+  // Serie Tech
+  7: { passos: 30, auto: 500, cada: 4, semente: 5, extra: 'regra=quantica', modelo: 7 },
+  8: { passos: 30, auto: 420, cada: 4, semente: 5, extra: 'regra=cubo', modelo: 8 },
+  9: { passos: 30, auto: 450, cada: 4, semente: 5, extra: 'regra=sobrecarga', modelo: 9 },
+  10: { passos: 30, auto: 450, cada: 4, semente: 5, extra: 'regra=orbita', modelo: 10 },
+  11: { passos: 30, auto: 450, cada: 4, semente: 6, extra: 'regra=repulsor', modelo: 11 },
+  12: { passos: 30, auto: 300, cada: 4, semente: 5, extra: 'regra=sincronia', modelo: 12 },
 };
 
 function chrome(argv, ms) {
@@ -42,7 +49,8 @@ const fechar = await servir(porta);
 const saida = join(RAIZ, opt.saida || 'docs/modelos');
 mkdirSync(saida, { recursive: true });
 for (const m of lista) {
-  const r = { ...(ROTEIRO[/** @type {keyof typeof ROTEIRO} */ (m)] || ROTEIRO[1]) };
+  if (!ROTEIRO[/** @type {keyof typeof ROTEIRO} */ (m)]) { process.stdout.write(`${m}: sem roteiro (acrescente em ROTEIRO)\n`); continue; }
+  const r = { ...ROTEIRO[/** @type {keyof typeof ROTEIRO} */ (m)] };
   for (const k of ['passos', 'auto', 'cada']) if (opt[k]) r[k] = Number(opt[k]);
   const nome = opt.nome || m;
   const [W, H] = (opt.tam || r.tam || '390x700').split('x').map(Number);

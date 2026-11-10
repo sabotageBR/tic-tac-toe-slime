@@ -1,4 +1,4 @@
-# Os 6 modelos (protótipos 0.1.0, 2026-11-07)
+# Os 12 modelos (protótipos: série slime 0.1.0 de 2026-11-07, Série Tech de 2026-11-10)
 
 Hub: `modelos/index.html` (local, `npm run servir` → http://127.0.0.1:5390/modelos/) e o Artifact (quando
 publicado; `npm run artifact` monta `.tmp/artifact/`). Vídeos e capas em `docs/modelos/` (`npm run gifs`).
@@ -31,3 +31,67 @@ Minha ordem para a Poki: **5 → 2 → 1** (o 6 depende do ritmo: é o mais "fí
 - Celular real (GPU e fps de verdade); zoom no mini ativo da Mega no retrato.
 - Metajogo (gotas, skins, desafio diário, sequência), SDK completo, `empacotar`, thumb.
 - Potes: deixar a dose mais rápida (hoje ~1,7 s por lance, ~5 s quando transborda).
+
+---
+
+# Série Tech (modelos 7 a 12, 2026-11-10)
+
+Pedido: "várias versões desse jogo, com mecânicas e temas totalmente diferentes de slime, ultra tecnológico". Sem slime
+e sem física de partículas: cena própria em Canvas 2D (neon, holograma), ciano × magenta, sons sintetizados. Cada versão
+tem o **Clássico** (3×3 neon) e os modos novos; CPU (níveis 0–4) ou 2 jogadores; partidas encadeadas sem tela.
+
+| # | Versão | Tema | O que muda a jogada | Modos novos | Lances por partida | Risco |
+|---|---|---|---|---|---|---|
+| 9 | **Sobrecarga** | reator, núcleos de energia | carregar o núcleo; no limite ele descarrega e captura os vizinhos em cadeia; sem empate | Sobrecarga 3×3, Reator 4×4 | 7–8 (4×4: 11–13) | cascata difícil de prever |
+| 8 | **Holo Cubo** | holograma 3D que gira | cubo 3×3×3 com gravidade: 9 colunas, 49 linhas, núcleo neutro no centro | Cubo 3D, Pontos | ~10 (Pontos: 26) | leitura do 3D no celular |
+| 11 | **Repulsor** | maglev, campo magnético | a peça nova empurra as 4 vizinhas; quem sai é ejetada | Repulsor 4×4, Atrator 5×5 | ~13 (CPU forte: ~25) | partidas longas entre defensores |
+| 10 | **Órbita** | estação espacial | gravidade + giro de 90° depois de cada lance; a linha vale depois do giro | Órbita 5×5, Órbita 4×4 | ~15 (4×4: ~8) | 4×4 favorece quem começa |
+| 7 | **Velha Quântica** | computador quântico | marca em 2 casas; ciclo de pares = colapso que o rival escolhe | Quântica | ~11 | pede tutorial |
+| 12 | **Sincronia** | scanner, mira laser | o toque trava a casa onde o feixe está; casa ocupada = perde a vez | Sincronia, Turbo | não medido | estratégia rasa (arcade) |
+
+Minha ordem para a Poki: **9 → 8 → 11** (a Sobrecarga é a mais fácil de entender sem texto e nunca empata; o Holo Cubo é
+o mais vistoso; o Repulsor tem a melhor profundidade). A Quântica é a mais original, mas depende de tutorial.
+
+## Calibragem por bot (CPU × CPU, quem começa alterna; 30 a 80 partidas por linha)
+
+A regra final de cada versão saiu destes números (antes do visual). "Começa" = vitórias de quem começou. As linhas do
+Repulsor e do Atrator foram medidas com teto de 40 lances; o jogo ficou com 36.
+
+| Versão (regra final) | Nível 2 × 2: começa / segundo / empate | Nível 4 × 4 | Nível 4 × 1 |
+|---|---|---|---|
+| Sobrecarga 3×3 (o segundo começa com um núcleo na borda) | 28 / 32 / 0 | 0 / 40 / 0 | — |
+| Sobrecarga 4×4, 4 em linha (núcleo inicial no miolo) | 27 / 33 / 0 | 26 / 14 / 0 | — |
+| Holo Cubo, 1ª linha (núcleo neutro no centro) | 45 / 15 / 0 | 20 / 0 / 0 | o 4 vence 20 de 20 |
+| Holo Cubo, Pontos (núcleo neutro) | 24 / 21 / 15 | 0 / 15 / 5 | o 4 vence 15 de 20 |
+| Repulsor 4×4, 3 em linha, empurrão ortogonal | 27 / 22 / 1 | 18 / 10 / 2 | o 4 vence 30 de 30 |
+| Atrator 5×5, 4 em linha | 24 / 15 / 11 | 20 / 0 / 10 | o 4 vence 29 de 30 |
+| Órbita 5×5, 4 em linha, a linha vale depois do giro | 30 / 38 / 12 | 30 / 0 / 0 | — |
+| Órbita 4×4, 3 em linha | 39 / 10 / 1 | 30 / 0 / 0 | — |
+| Quântica | 34 / 15 / 11 | 21 / 4 / 5 | o 4 vence 26 de 30 |
+
+O que foi descartado pelos números:
+- Sobrecarga sem o núcleo inicial do segundo: quem começa vencia 40 de 40 no nível 4 e 31 de 40 no nível 2.
+- Holo Cubo sem o núcleo neutro: quem começa vencia 53 de 60 no nível 2.
+- Repulsor empurrando as 8 vizinhas: 40 empates em 40 no nível 4 (ninguém fecha linha). Desempate por maioria de peças
+  no teto: favorecia quem joga por último (17 a 0).
+- Atrator no 4×4 com 3 em linha: quem começa vencia em 5 lances.
+- Órbita com vitória direta antes do giro (4×4 e 5×5): quem começa vencia 40 de 50 e 37 de 50 no nível 2.
+
+Jogos sem empate e de árvore pequena (Sobrecarga, Órbita 4×4) são sempre ganhos por um dos lados no nível máximo; o
+equilíbrio que importa é o do nível padrão (2), e quem começa alterna a cada partida.
+
+## O que foi medido na Série Tech
+- `npm test` (175 testes): os testes da série slime continuam verdes; `test/tec.test.js` cobre as regras de cada versão
+  (colapso e cascata, 49 linhas do cubo, giro e assentamento, empurrão, ejeção, falha de sincronia), o nível 4 contra o
+  nível 0, o determinismo por semente, o palco sem NaN com duas partidas encadeadas e os `toques` dentro da janela; o
+  `test/modelos.test.js` joga cada submodo até o fim, contra a CPU e em 2 jogadores.
+- `npm run jogar -- 7 8 9 10 11 12` (390×844 e 1031×580): **nenhum erro no console**, 60 fps no Chrome headless (a cena
+  tech é Canvas 2D: não depende do WebGL por software) e menos de 0,05 ms de lógica por quadro. Em 2 jogadores, 5 de 5
+  cliques de verdade viraram lance em cada versão.
+- `npm run gifs -- 7 8 9 10 11 12`: filme determinístico de cada uma em `docs/modelos/`.
+
+## Pendências da Série Tech (para a produção da escolhida)
+- Celular real: fps e leitura (Holo Cubo em pé, fantasmas pequenos da Quântica).
+- Tutorial sem texto (Quântica e Sobrecarga), metajogo, SDK completo, thumb.
+- A tela de carregamento ainda é a do slime (papel claro) por um instante antes do tema escuro.
+- A Sincronia não tem calibragem por bot (a habilidade é o tempo do toque): acertar a velocidade do feixe com gente.

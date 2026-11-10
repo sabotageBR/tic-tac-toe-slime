@@ -15,8 +15,9 @@ const pasta = join(RAIZ, '.tmp/artifact');
 rmSync(pasta, { recursive: true, force: true });
 mkdirSync(pasta, { recursive: true });
 /** paginas de jogo: [nome, modelo, regra] */
-const JOGOS = [['1', '1', ''], ['2', '2', ''], ['3', '3', ''], ['4', '4', ''], ['5', '5', ''], ['6', '6', ''], ['6-transborda', '6', 'transborda']];
-const VIDEOS = ['1', '2', '3', '4', '5', '6', '6t'];
+const JOGOS = [['1', '1', ''], ['2', '2', ''], ['3', '3', ''], ['4', '4', ''], ['5', '5', ''], ['6', '6', ''], ['6-transborda', '6', 'transborda'],
+  ['7', '7', ''], ['8', '8', ''], ['9', '9', ''], ['10', '10', ''], ['11', '11', ''], ['12', '12', ''], ['8-cuboPontos', '8', 'cuboPontos']];
+const VIDEOS = ['1', '2', '3', '4', '5', '6', '6t', '7', '8', '9', '10', '11', '12'];
 
 let h = readFileSync(join(RAIZ, 'modelos/index.html'), 'utf8');
 h = h.replace(/<!doctype html>\s*/i, '')

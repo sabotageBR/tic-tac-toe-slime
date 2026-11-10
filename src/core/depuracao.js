@@ -1,7 +1,7 @@
 // Parametros de teste na URL. So valem em file://, localhost, 127.0.0.1 e na rede local
 // (192.168.x, 10.x: o celular pela Wi-Fi). Na Poki nada disso existe.
 // Unico modulo que le a URL (vigiado por test/estilo.test.js).
-//   ?modelo=1..6       qual prototipo abre (sem ele: o hub escolhe; o jogo abre o 6, Potes)
+//   ?modelo=1..12      qual prototipo abre (1 a 6 slime, 7 a 12 Serie Tech; sem ele: o jogo abre o 6, Potes)
 //   ?regra=engole      submodo do modelo (cada modelo tem a lista dele; sem ele: o modo novo)
 //   ?dois              2 jogadores no mesmo aparelho (sem ele: contra a CPU)
 //   ?nivel=0..4        forca da CPU

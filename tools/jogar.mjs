@@ -1,6 +1,7 @@
 // Joga os modelos em tempo real no Chrome headless (DevTools Protocol, tools/cdp.mjs): toque nas
 // casas (pelo mouse de verdade, convertendo a casa do mundo para a tela com o __velha.cena), o
-// arrasto do Peteleco, 2 jogadores, reinicio e o Esc; confere erros do console e mede o fps.
+// arrasto do Peteleco, os toques que a Serie Tech informa (modo.toques), 2 jogadores, reinicio e o
+// Esc; confere erros do console e mede o fps.
 // Uso: node tools/jogar.mjs [modelo...] [--tam=390x844] [--render=2d]
 import { abrirChrome, espera } from './cdp.mjs';
 import { servir } from './servir.mjs';
@@ -11,7 +12,7 @@ import { RAIZ } from './servir.mjs';
 const args = process.argv.slice(2);
 const opt = Object.fromEntries(args.filter((a) => a.startsWith('--')).map((a) => { const i = a.indexOf('='); return i < 0 ? [a.slice(2), ''] : [a.slice(2, i), a.slice(i + 1)]; }));
 const lista = args.filter((a) => !a.startsWith('--'));
-const modelos = lista.length ? lista : ['1', '2', '3', '4', '5', '6'];
+const modelos = lista.length ? lista : ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 const tams = (opt.tam || '390x844,1031x580').split(',');
 const extra = opt.render ? `&render=${opt.render}` : '';
 const saida = join(RAIZ, '.tmp/jogar');
@@ -36,6 +37,10 @@ for (const tam of tams) {
         // peteleco: puxa do trilho de baixo para tras e solta (lanca para cima)
         const p = await c.avaliar('(() => { const V = window.__velha; const M = V.J.modo.mesa; return [V.cena.paraTela(0, M.trilhoY(1)), V.cena.paraTela(0.4, M.trilhoY(1) - 3.2)]; })()');
         await c.arrastar(p[0][0], p[0][1], p[1][0], p[1][1], 12, 300);
+      } else if (await c.avaliar('!!window.__velha.J.modo.toques')) {
+        // Serie Tech: o modo diz onde tocar para fazer a jogada (coluna do cubo, par de casas da Quantica)
+        const pts = await c.avaliar(`(() => { const V = window.__velha; const M = V.J.modo; const js = M.api.vez.jogadas; if (!js.length) return []; return M.toques(js[(${k} * 5) % js.length]).map(([x, y]) => V.cena.paraTela(x, y)); })()`);
+        for (const [x, y] of pts) { await c.clicar(x, y); await espera(260); }
       } else {
         // a primeira casa livre que aceita o toque (o Engole escolhe o maior tamanho que cabe)
         const livres = await c.avaliar('(() => { const M = window.__velha.J.modo; return (M.api ? M.api.vez.jogadas : []).map((j) => j.casa !== undefined ? j.casa : j.para); })()');

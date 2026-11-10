@@ -2,7 +2,7 @@
   "name": "slime-tac-toe",
   "version": "0.1.0",
   "private": true,
-  "description": "Slime Tac Toe: jogo da velha com o motor de slime do slime-merge (particulas PBD + pigmento Kubelka-Munk), 6 prototipos para a Poki (HTML + JavaScript puro).",
+  "description": "Slime Tac Toe: jogo da velha em 12 prototipos para a Poki (HTML + JavaScript puro): 6 com o motor de slime do slime-merge (particulas PBD + pigmento Kubelka-Munk) e 6 da Serie Tech (neon, sem fisica).",
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.js",
