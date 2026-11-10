@@ -9,6 +9,7 @@
 import { ARQUIVOS } from './arquivos.js';
 import { tom, sopro } from './receitas.js';
 import { falar as balbucio } from './falas.js';
+import { RECEITAS_TEC } from './tec.js';
 
 export const INTERVALO_FALA = 1.2;
 const VOL_ARQUIVO = 0.5;
@@ -168,7 +169,7 @@ export function criarMesa(audio, o = {}) {
 
   /** @param {string} nome @param {any} [p] @param {{ chave?: string, max?: number, destino?: 'sfx'|'voz', atraso?: number }} [op] */
   function tocar(nome, p = {}, op = {}) {
-    const r = RECEITAS_VOLEI[nome];
+    const r = RECEITAS_VOLEI[nome] || RECEITAS_TEC[/** @type {keyof typeof RECEITAS_TEC} */ (nome)];
     if (r) return audio.tocarReceita(r, p, { chave: op.chave || nome, max: op.max || 3, destino: op.destino, atraso: op.atraso });
     return audio.tocarReceita(nome, p, { chave: op.chave || nome, max: op.max || 3, destino: op.destino, atraso: op.atraso });
   }

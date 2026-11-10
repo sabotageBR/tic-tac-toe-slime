@@ -15,6 +15,8 @@ import { criarQualidade } from './render/qualidade.js';
 import { texto } from './i18n/textos.js';
 import { MODELOS } from './jogo/modelos.js';
 import { DESENHOS } from './render/modelos/index.js';
+import { criarCenaTec } from './render/tec/cena.js';
+import { CORES as CORES_TEC } from './render/tec/kit.js';
 
 const dep = lerDepuracao();
 const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (document.getElementById(id));
@@ -27,6 +29,9 @@ if (dep.semHud) document.body.classList.add('semhud');
 
 const idModelo = String(dep.modelo || /** @type {any} */ (globalThis).__velhaModelo || '6'); // modelo
 const MOD = MODELOS[idModelo] || MODELOS['6'];
+/** Serie Tech (7 a 12): cena propria, tema escuro do HUD, sons sintetizados proprios */
+const TEC = !!MOD.tec;
+document.body.dataset.tema = TEC ? 'tec' : 'slime';
 const salvo = armazem.ler('prefs', {}) || {};
 
 /** estado do prototipo */
@@ -60,8 +65,11 @@ function novoModo() {
 }
 
 // ------------------------------------------------------------------ cena, audio, laco
-const cena = criarCena({ fundo: /** @type {any} */ ($('cFundo')), slime: /** @type {any} */ ($('cSlime')), topo: /** @type {any} */ ($('cTopo')), area: $('area'), tela: /** @type {any} */ ($('cTela')) },
-  { forcar2d: dep.render === '2d', raio: dep.raio, limiar: dep.limiar, zoom: dep.zoom, expr: dep.expr });
+const telas = { fundo: /** @type {any} */ ($('cFundo')), slime: /** @type {any} */ ($('cSlime')), topo: /** @type {any} */ ($('cTopo')), area: $('area'), tela: /** @type {any} */ ($('cTela')) };
+/** uma cena so por pagina: na tech o canvas do slime nunca ganha contexto WebGL */
+const cena = /** @type {any} */ (TEC
+  ? criarCenaTec(telas, { zoom: dep.zoom })
+  : criarCena(telas, { forcar2d: dep.render === '2d', raio: dep.raio, limiar: dep.limiar, zoom: dep.zoom, expr: dep.expr }));
 const qualidade = criarQualidade({ niveis: QUALIDADES.length, inicial: dep.qualidade >= 0 ? dep.qualidade : toque ? 1 : 0 });
 cena.definirQualidade(qualidade.nivel);
 const audio = criarAudio();
@@ -76,6 +84,13 @@ const SONS = {
   despejar: ['bolhaSobe', {}], peteleco: ['squish', { forca: 2 }], batida: ['gelatina', { forca: 3 }], calha: ['descartar', {}],
   poder: ['completar', {}], aviso: ['tique', {}], botao: ['botao', {}],
 };
+// Serie Tech: o nome do evento ja e o da receita (src/som/tec.js)
+for (const n of ['tecMarca', 'tecSelecao', 'tecCarga', 'tecDescarga', 'tecRecusa', 'tecVenceu', 'tecPerdeu', 'tecEmpate', 'tecLimpa', 'tecColapso', 'tecGiro', 'tecCair', 'tecEmpurra', 'tecEjeta', 'tecTique', 'tecTrava', 'tecFalha']) {
+  /** @type {any} */ (SONS)[n] = [n, {}];
+}
+const BOTAO = TEC ? 'tecBotao' : 'botao';
+/** @param {any} e cor do evento tech (e.j = jogador) */
+const corTec = (e) => e.cor || CORES_TEC[/** @type {0|1|2} */ (e.j || 0)];
 
 function tratarEventos() {
   const ev = J.modo.eventos;
@@ -100,8 +115,15 @@ function tratarEventos() {
         vibrar(30);
         break;
       case 'fusao': cena.vfx.brilho(e.x, e.y, '#fff8c0'); mesa.tocar('fusaoBolha', { combo: 3 }); break;
-      case 'texto': cena.vfx.texto(e.x, e.y, T(e.chave, e.vars), e.cor || '#ffffff', e.escala || 1); break;
-      case 'tremor': vibrar(60); break;
+      case 'texto': cena.vfx.texto(e.x, e.y, T(e.chave, e.vars), e.cor || (e.j ? corTec(e) : '#ffffff'), e.escala || 1); break;
+      case 'tremor': vibrar(60); if (TEC) cena.vfx.tremer(e.forca || 0.5); break;
+      // efeitos da Serie Tech
+      case 'faisca': cena.vfx.faisca(e.x, e.y, corTec(e), e.qtd || 8, e.forca || 5); break;
+      case 'onda': cena.vfx.onda(e.x, e.y, corTec(e), e.r || 2.4); break;
+      case 'arco': cena.vfx.arco(e.x0, e.y0, e.x1, e.y1, corTec(e)); break;
+      case 'clarao': cena.vfx.brilho(e.x, e.y, corTec(e), e.r || 1.6); break;
+      case 'pixels': cena.vfx.pixels(e.x, e.y, corTec(e), e.qtd || 14, e.r || 0.8); break;
+      case 'glitch': cena.vfx.glitch(e.dur || 0.25); vibrar(40); break;
       case 'fim':
         if (e.vencedor) vibrar([20, 40, 20]);
         J.vistos++;
@@ -158,7 +180,7 @@ function montarSubmodos() {
       if (s.id === J.regra) return;
       J.regra = s.id;
       salvar();
-      mesa.tocar('botao');
+      mesa.tocar(BOTAO);
       novoModo();
     });
     el.appendChild(b);
@@ -173,7 +195,7 @@ function montarSubmodos() {
 /** @param {boolean} forcar */
 function atualizarHud(forcar) {
   const h = J.modo.hud();
-  const nome = (/** @type {number} */ j) => (h.cpu[j] ? T('cpu') : J.dois ? T('jogador' + j) : T('voce'));
+  const nome = (/** @type {number} */ j) => (h.cpu[j] ? T('cpu') : J.dois ? T((TEC ? 'tec.jogador' : 'jogador') + j) : T('voce'));
   let vez = '';
   if (h.resultado) {
     const v = h.resultado.vencedor;
@@ -206,13 +228,13 @@ function montarPoderes(lista, pode) {
     if (p.usado) b.classList.add('usado');
     if (p.armado) b.classList.add('armado');
     b.disabled = !!p.usado || !pode;
-    b.addEventListener('click', () => { if (J.modo.poder(p.id)) mesa.tocar('botao'); atualizarHud(true); });
+    b.addEventListener('click', () => { if (J.modo.poder(p.id)) mesa.tocar(BOTAO); atualizarHud(true); });
     el.appendChild(b);
   }
 }
 
-$('btnReiniciar').addEventListener('click', () => { mesa.tocar('botao'); J.modo.reiniciar(); atualizarHud(true); });
-$('btnDois').addEventListener('click', () => { J.dois = !J.dois; mesa.tocar('botao'); novoModo(); });
+$('btnReiniciar').addEventListener('click', () => { mesa.tocar(BOTAO); J.modo.reiniciar(); atualizarHud(true); });
+$('btnDois').addEventListener('click', () => { J.dois = !J.dois; mesa.tocar(BOTAO); novoModo(); });
 $('btnSom').addEventListener('click', () => {
   audio.definirMudo(!audio.mudo);
   $('btnSom').classList.toggle('mudo', audio.mudo);
